@@ -5,6 +5,7 @@ Same contract as TraceTelemetry.Client HttpTelemetryTransport.
 
 from typing import List
 
+import certifi
 import requests
 
 
@@ -30,7 +31,9 @@ def send_batch(
             json=events,
             headers=headers,
             timeout=timeout,
+            verify=False
         )
         return resp.ok
-    except Exception:
+    except Exception as exception:
+        print(f"Error sending batch: {exception}")
         return False

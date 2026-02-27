@@ -36,20 +36,80 @@ dotnet add package TraceTelemetry.Client
 
 Pacote: `TraceTelemetry.Client` (versão `0.1.0-alpha`).
 
+### Recompilar e empacotar o SDK (.NET)
+
+Para gerar o pacote NuGet localmente e usá-lo em outros projetos com `dotnet add package TraceTelemetry.Client`:
+
+1. **Gerar o pacote** (na raiz do repositório ou na pasta do cliente):
+
+   ```bash
+   cd TraceTelemetry.Client
+   dotnet pack -c Release
+   ```
+
+   O arquivo `.nupkg` será criado em `TraceTelemetry.Client/bin/Release/` (ex.: `TraceTelemetry.Client.0.1.0-alpha.nupkg`).
+
+2. **Adicionar a pasta como fonte NuGet local** (uma vez por máquina ou por solução):
+
+   ```bash
+   dotnet nuget add source "D:\TraceTelemetry\TraceTelemetry.Client\bin\Release" --name LocalTraceTelemetry
+   ```
+
+   Ajuste o caminho se o repositório estiver em outro diretório.
+
+3. **No projeto que consome o SDK:**
+
+   ```bash
+   dotnet add package TraceTelemetry.Client
+   ```
+
+   Se a fonte `LocalTraceTelemetry` estiver configurada, o pacote será restaurado a partir da pasta local.
+
+**Alternativa:** criar um `nuget.config` na raiz da solução apontando a pasta local como fonte, para não depender do `dotnet nuget add source` global:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="LocalTraceTelemetry" value=".\TraceTelemetry.Client\bin\Release" />
+  </packageSources>
+</configuration>
+```
+
+Assim, qualquer projeto da solução pode usar `dotnet add package TraceTelemetry.Client` e o pacote será resolvido a partir da pasta local após o `dotnet pack`.
+
+### Python
+
+No diretório do SDK Python, instale em modo editável e execute a POC:
+
+```bash
+cd D:\TraceTelemetry\trace-telemetry-python
+pip install -e . -q
+python examples/poc.py
+```
+
+Ou em uma linha (PowerShell):
+
+```powershell
+cd D:\TraceTelemetry\trace-telemetry-python; pip install -e . -q; python examples/poc.py
+```
+
+Requisitos: Python >= 3.8, `requests >= 2.28.0`.
+
 ## Configuração
 
-Use `TelemetryOptions` para configurar endpoint, chave de API e comportamento da fila:
+Use `TelemetryOptions` (C#) ou `TelemetryOptions` em `trace_telemetry.options` (Python) para configurar endpoint, chave de API e comportamento da fila:
 
-| Propriedade | Descrição | Padrão |
-|-------------|-----------|--------|
-| `EndpointUrl` | URL da API (ex.: `https://sua-api.com/telemetry`) | — |
-| `ApiKey` | Chave enviada no header `X-API-Key` | — |
-| `QueuePath` | Caminho do arquivo NDJSON da fila | `telemetry-queue.ndjson` |
-| `BatchSize` | Quantidade de eventos por lote no envio | `20` |
-| `FlushIntervalSeconds` | Intervalo em segundos do timer de envio | `10` |
-| `ApplicationName` | Nome da aplicação (enviado em cada evento) | — |
-| `ApplicationVersion` | Versão (ex.: `1.0.0`) | — |
-| `EnableCountryLookup` | Resolver país por IP (geolocalização) | `true` |
+| Propriedade (C#) / Atributo (Python) | Descrição | Padrão |
+|--------------------------------------|-----------|--------|
+| `EndpointUrl` / `endpoint_url` | URL da API (ex.: `https://sua-api.com/telemetry`) | — |
+| `ApiKey` / `api_key` | Chave enviada no header `X-API-Key` | — |
+| `QueuePath` / `queue_path` | Caminho do arquivo NDJSON da fila | `telemetry-queue.ndjson` |
+| `BatchSize` / `batch_size` | Quantidade de eventos por lote no envio | `20` |
+| `FlushIntervalSeconds` / `flush_interval_seconds` | Intervalo em segundos do timer de envio | `10` |
+| `ApplicationName` / `application_name` | Nome da aplicação (enviado em cada evento) | — |
+| `ApplicationVersion` / `application_version` | Versão (ex.: `1.0.0`) | — |
+| `EnableCountryLookup` / `enable_country_lookup` | Resolver país por IP (geolocalização) | C#: `true` / Python: `False` |
 
 ## Uso básico
 
@@ -94,6 +154,46 @@ await client.FlushAsync();
 
 // Ao encerrar a aplicação
 client.Stop();
+```
+
+### Python
+
+```python
+from trace_telemetry import TelemetryClient, TelemetryOptions
+
+options = TelemetryOptions(
+    endpoint_url="https://sua-api.com/telemetry",
+    api_key="sua-api-key",
+    queue_path="telemetry-queue.ndjson",
+    batch_size=20,
+    flush_interval_seconds=10,
+    application_name="MeuApp",
+    application_version="1.0.0",
+)
+
+client = TelemetryClient(options)
+client.start()
+
+# Evento simples (só nome)
+client.track("app_start")
+
+# Evento com payload (dict ou valor JSON-serializável)
+client.track("order_created", {"order_id": 123, "amount": 99.90})
+
+# Evento com uma propriedade (atalho)
+client.track("button_click", "button_name", "Save")
+
+# Exceção (message, stack trace, tipo)
+try:
+    ...
+except Exception as ex:
+    client.track_exception(ex, event_name="exception", extra_data={"tela": "Checkout"})
+
+# Flush manual (opcional)
+client.flush()
+
+# Ao encerrar a aplicação
+client.stop()
 ```
 
 ## Modelo de evento

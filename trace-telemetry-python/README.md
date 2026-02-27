@@ -4,7 +4,7 @@ SDK de telemetria em Python, compatível com a API e o contrato do pacote **Trac
 
 ## Instalação
 
-No diretório do repositório:
+No diretório do repositório (`trace-telemetry-python`):
 
 ```bash
 pip install -e .
@@ -18,7 +18,43 @@ pip install git+https://github.com/your-org/trace-telemetry-python.git
 
 **Dependência:** `requests >= 2.28.0`, Python >= 3.8.
 
-## Uso rápido
+## Como usar o SDK
+
+1. Crie opções com `TelemetryOptions` (endpoint da API, api_key, nome/versão do app, etc.).
+2. Instancie `TelemetryClient(options)` e chame `client.start()` para ativar o timer de envio.
+3. Use `client.track(...)` para registrar eventos e `client.track_exception(ex)` para exceções.
+4. Opcionalmente chame `client.flush()` para forçar o envio imediato de um lote.
+5. Ao encerrar, chame `client.stop()` (e, se quiser enviar o que restar, `client.flush()` antes).
+
+## POC / Exemplo completo
+
+O diretório `examples/` contém um script POC que você pode rodar para testar o SDK (modo one-shot ou loop).
+
+```bash
+# Na raiz de trace-telemetry-python, com o SDK instalado (pip install -e .)
+python examples/poc.py
+```
+
+**Modo one-shot (padrão):** enfileira vários eventos, uma exceção simulada, faz flush e para.
+
+**Modo loop:** defina `RUN_LOOP=true` e, opcionalmente, `LOOP_INTERVAL=5` (segundos):
+
+```bash
+RUN_LOOP=true LOOP_INTERVAL=5 python examples/poc.py
+```
+
+Variáveis de ambiente suportadas pela POC:
+
+| Variável | Descrição | Padrão |
+|----------|-----------|--------|
+| `TELEMETRY_API_URL` | Base da API (ex.: `https://boscobecker.fun/`) | `https://boscobecker.fun/` |
+| `TELEMETRY_API_KEY` | Chave enviada no header `X-API-Key` | (vazio) |
+| `RUN_LOOP` | `true` = envia lotes em loop | `false` |
+| `LOOP_INTERVAL` | Segundos entre rodadas (quando RUN_LOOP=true) | `5` |
+| `BATCH_SIZE` | Eventos por lote no flush | `5` |
+| `FLUSH_INTERVAL` | Intervalo do timer de flush (segundos) | `3` |
+
+## Uso rápido (código)
 
 ```python
 from trace_telemetry import TelemetryClient, TelemetryOptions
