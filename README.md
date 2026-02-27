@@ -1,5 +1,7 @@
 # TraceTelemetry SDK
 
+<img width="1914" height="1037" alt="image" src="https://github.com/user-attachments/assets/9b50546e-bc53-4eb3-877c-9022aabdf94a" />
+
 SDK leve e **offline-first** de telemetria para aplicações .NET e Delphi (via binding). Pensado para apps desktop que precisam enviar eventos mesmo sem conexão estável: os eventos são enfileirados em arquivo NDJSON e enviados em lotes para a API quando há rede.
 
 ## Características
