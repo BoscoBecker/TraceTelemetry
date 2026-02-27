@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <!-- NuGet metadata -->
+    <PackageId>TraceTelemetry.Client</PackageId>
+    <Version>0.1.0-alpha</Version>
+    <Authors>João Bosco</Authors>
+    <Company>TraceTelemetry</Company>
+    <Description>Lightweight offline-first telemetry for Delphi and .NET desktop applications.</Description>
+    <PackageTags>telemetry;logging;desktop;dotnet;delphi</PackageTags>
+    <RepositoryUrl>https://github.com/seuusuario/tracetelemetry</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Offline-first NDJSON queue, batch + timer flush, thread-safe, zero external dependencies.</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+</Project>

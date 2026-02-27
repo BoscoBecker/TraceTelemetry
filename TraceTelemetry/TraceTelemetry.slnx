@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../TraceTelemetry.API/API.CollectTelemetry/API.CollectTelemetry.csproj" />
+  <Project Path="../TraceTelemetry.Client/TraceTelemetry.Client.csproj" />
+  <Project Path="../TraceTelemetry.Poc/TraceTelemetry.Poc.csproj" />
+</Solution>
