@@ -214,6 +214,12 @@ Cada evento enviado para a API contém (além do que você envia em `Data`):
 
 A API espera **POST** no endpoint configurado, corpo **JSON** com um **array de eventos**.
 
+##Exceptions
+1. **Captura** Trace Telemetry foi pensado para capturar exceptions e exibir de forma simples e rastreável, conforme abaixo
+
+<img width="1916" height="936" alt="image" src="https://github.com/user-attachments/assets/002ee56c-a6c0-4480-8abf-af8318f87ff7" />
+
+
 ## Fila e envio
 
 1. **Enfileiramento**: `TrackAsync` e `TrackExceptionAsync` gravam uma linha JSON no arquivo de fila (NDJSON). Não fazem rede.
