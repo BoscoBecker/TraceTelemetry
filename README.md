@@ -1,8 +1,12 @@
 # TraceTelemetry SDK
 
-<img width="1914" height="1037" alt="image" src="https://github.com/user-attachments/assets/9b50546e-bc53-4eb3-877c-9022aabdf94a" />
+<img width="1920" height="941" alt="image" src="https://github.com/user-attachments/assets/0f1479f7-020b-4f5b-8848-9bf97e199393" />
 
-SDK leve e **offline-first** de telemetria para aplicações .NET e Delphi (via binding). Pensado para apps desktop que precisam enviar eventos mesmo sem conexão estável: os eventos são enfileirados em arquivo NDJSON e enviados em lotes para a API quando há rede.
+
+SDK leve e **offline-first** de telemetria para aplicações .NET python e futuramente Delphi (via binding). Pensado para apps desktop que precisam enviar eventos mesmo sem conexão estável: os eventos são enfileirados em arquivo NDJSON e enviados em lotes para a API quando há rede.
+
+A API feita 100% em dotnet está hospedada na hostinger 100% segura (https) end-to-ende futuramente será alterado o dominio pessoal para api.tracetelemetry.com, como 
+é um MVP o banco de dados é SQLITE mas futuramente será PostgresSQL e o front-end hospedada na Vercel.
 
 ## Características
 
@@ -209,6 +213,12 @@ Cada evento enviado para a API contém (além do que você envia em `Data`):
 - `IpAddress`, `CountryCode` (quando `EnableCountryLookup` está ativo)
 
 A API espera **POST** no endpoint configurado, corpo **JSON** com um **array de eventos**.
+
+##Exceptions
+1. **Captura** Trace Telemetry foi pensado para capturar exceptions e exibir de forma simples e rastreável, conforme abaixo
+
+<img width="1916" height="936" alt="image" src="https://github.com/user-attachments/assets/002ee56c-a6c0-4480-8abf-af8318f87ff7" />
+
 
 ## Fila e envio
 
