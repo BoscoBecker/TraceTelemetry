@@ -25,6 +25,7 @@ A API feita 100% em dotnet está hospedada na hostinger 100% segura (https) end-
 | **TraceTelemetry.Poc** | Aplicação de exemplo que usa o SDK |
 | **TraceTelemetry.API** | API que recebe os eventos (POST `/telemetry`) |
 | **trace-telemetry-python** | SDK equivalente em Python |
+| **TraceTelemetry-Delphi** | SDK equivalente em Delphi (nativo) |
 
 ## Instalação
 
@@ -102,20 +103,39 @@ cd D:\TraceTelemetry\trace-telemetry-python; pip install -e . -q; python example
 
 Requisitos: Python >= 3.8, `requests >= 2.28.0`.
 
+### Delphi
+
+Compile o pacote e execute o exemplo POC:
+
+```bash
+# Compilar o pacote SDK
+cd D:\TraceTelemetry\TraceTelemetry-Delphi
+msbuild TraceTelemetry.Delphi.dproj /p:Configuration=Release
+
+# Compilar e executar o POC
+cd Examples
+msbuild Poc.dproj /p:Configuration=Release
+.\Win32\Release\Poc.exe
+```
+
+Requisitos: Delphi 10.4+, Windows 32/64 bit.
+
+O SDK Delphi é 100% nativo, sem dependências externas além das units padrão do Delphi.
+
 ## Configuração
 
-Use `TelemetryOptions` (C#) ou `TelemetryOptions` em `trace_telemetry.options` (Python) para configurar endpoint, chave de API e comportamento da fila:
+Use `TelemetryOptions` (C#), `TelemetryOptions` em `trace_telemetry.options` (Python) ou `TTelemetryOptions` (Delphi) para configurar endpoint, chave de API e comportamento da fila:
 
-| Propriedade (C#) / Atributo (Python) | Descrição | Padrão |
+| Propriedade (C#) / Atributo (Python) / Propriedade (Delphi) | Descrição | Padrão |
 |--------------------------------------|-----------|--------|
-| `EndpointUrl` / `endpoint_url` | URL da API (ex.: `https://sua-api.com/telemetry`) | — |
-| `ApiKey` / `api_key` | Chave enviada no header `X-API-Key` | — |
-| `QueuePath` / `queue_path` | Caminho do arquivo NDJSON da fila | `telemetry-queue.ndjson` |
-| `BatchSize` / `batch_size` | Quantidade de eventos por lote no envio | `20` |
-| `FlushIntervalSeconds` / `flush_interval_seconds` | Intervalo em segundos do timer de envio | `10` |
-| `ApplicationName` / `application_name` | Nome da aplicação (enviado em cada evento) | — |
-| `ApplicationVersion` / `application_version` | Versão (ex.: `1.0.0`) | — |
-| `EnableCountryLookup` / `enable_country_lookup` | Resolver país por IP (geolocalização) | C#: `true` / Python: `False` |
+| `EndpointUrl` / `endpoint_url` / `EndpointUrl` | URL da API (ex.: `https://sua-api.com/telemetry`) | — |
+| `ApiKey` / `api_key` / `ApiKey` | Chave enviada no header `X-API-Key` | — |
+| `QueuePath` / `queue_path` / `QueuePath` | Caminho do arquivo NDJSON da fila | `telemetry-queue.ndjson` |
+| `BatchSize` / `batch_size` / `BatchSize` | Quantidade de eventos por lote no envio | `20` |
+| `FlushIntervalSeconds` / `flush_interval_seconds` / `FlushIntervalSeconds` | Intervalo em segundos do timer de envio | `10` |
+| `ApplicationName` / `application_name` / `ApplicationName` | Nome da aplicação (enviado em cada evento) | — |
+| `ApplicationVersion` / `application_version` / `ApplicationVersion` | Versão (ex.: `1.0.0`) | — |
+| `EnableCountryLookup` / `enable_country_lookup` / `EnableCountryLookup` | Resolver país por IP (geolocalização) | C#: `true` / Python: `False` / Delphi: `False` |
 
 ## Uso básico
 
@@ -200,6 +220,61 @@ client.flush()
 
 # Ao encerrar a aplicação
 client.stop()
+```
+
+### Delphi
+
+```delphi
+uses
+  TraceTelemetry.Client, TraceTelemetry.Options;
+
+var
+  Options: TTelemetryOptions;
+  Client: TTelemetryClient;
+begin
+  Options := TTelemetryOptions.Create;
+  try
+    Options.EndpointUrl := 'https://sua-api.com/telemetry';
+    Options.ApiKey := 'sua-api-key';
+    Options.QueuePath := 'telemetry-queue.ndjson';
+    Options.BatchSize := 20;
+    Options.FlushIntervalSeconds := 10;
+    Options.ApplicationName := 'MeuApp';
+    Options.ApplicationVersion := '1.0.0';
+    
+    Client := TTelemetryClient.Create(Options);
+    try
+      Client.Start;
+      
+      // Evento simples (só nome)
+      Client.Track('app_start');
+      
+      // Evento com payload (JSONObject)
+      Client.Track('order_created', TJSONObject.ParseJSONValue('{"order_id": 123, "amount": 99.90}') as TJSONObject);
+      
+      // Evento com uma propriedade (atalho)
+      Client.Track('button_click', 'ButtonName', 'Save');
+      
+      // Exceção (message, stack trace, tipo)
+      try
+        // ...
+      except
+        on E: Exception do
+          Client.TrackException(E, 'exception', TJSONObject.ParseJSONValue('{"tela": "Checkout"}') as TJSONObject);
+      end;
+      
+      // Flush manual (opcional)
+      Client.Flush;
+      
+    finally
+      Client.Stop;
+      Client.Free;
+    end;
+    
+  finally
+    Options.Free;
+  end;
+end;
 ```
 
 ## Modelo de evento
