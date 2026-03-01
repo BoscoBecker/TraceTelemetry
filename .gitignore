@@ -115,3 +115,4 @@ Thumbs.db
 *.temp
 .cache/
 publish-to-ubuntu.ps1
+TraceTelemetry-Delphi/Examples/Poc.identcache
